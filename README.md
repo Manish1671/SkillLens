@@ -191,39 +191,35 @@ Open [http://localhost:3000](http://localhost:3000). Next.js rewrites `/api/*` t
 
 ## Deploy (CV / live demo)
 
-Use **Railway**, not Render. Railway gives you unique URLs, so you will not hit “name already in use”.
+Railway’s free plan is already used on this account. Use **Neon (free Postgres) + Hugging Face Spaces (free website)**. One Docker image runs both the UI and the API.
 
-The browser talks only to the frontend origin. `/api/*` is proxied to FastAPI so login cookies stay first-party.
+### 1. Free database (Neon)
 
-### Railway (use this)
+1. Open [https://console.neon.tech](https://console.neon.tech) and sign in with GitHub.
+2. Create a project (default settings are fine).
+3. Copy the **connection string** (`postgresql://...`). You will paste it as `DATABASE_URL`.
 
-1. Cancel any in-progress Render Blueprint. You can delete the old Render SkillLens services later.
-2. Open [https://railway.app](https://railway.app) and log in with **GitHub**.
-3. **New Project** → **Empty project**.
-4. In that project click **Create** → **Database** → **PostgreSQL**. Wait until it is running.
-5. **Create** → **GitHub Repo** → **Manish1671/SkillLens**.
-   - Settings → **Root Directory**: `backend`
-   - Settings → rename the service to `backend`
-   - Variables (exactly these, plus the Postgres link):
-     - `APP_ENV` = `production`
-     - `PORT` = `8000`
-     - `JWT_SECRET_KEY` = any 32+ character random string
-     - `SKILLENS_DEMO_PASSWORD` = the demo login password (for example `demo12345`)
-     - `DATABASE_URL` = click **Add variable** → **Add a reference** → Postgres `DATABASE_URL`
-   - Settings → **Networking**: you can leave this **private** (no public URL).
-6. **Create** → **GitHub Repo** → **Manish1671/SkillLens** again.
-   - Settings → **Root Directory**: `frontend`
-   - Settings → rename the service to `web`
-   - Variables:
-     - `API_URL` = `http://backend.railway.internal:8000`
-     - `HOSTNAME` = `0.0.0.0`
-   - Settings → **Networking** → **Generate domain** (this is the CV URL).
-7. Redeploy **web** once after `API_URL` is set, so Next.js builds with the backend address.
+### 2. Free website (Hugging Face)
 
-CV link = the **web** service domain (`*.up.railway.app`).  
+1. Open [https://huggingface.co/new-space](https://huggingface.co/new-space)
+2. Space name: `skilllens`
+3. **SDK:** Docker
+4. **Hardware:** CPU basic (free)
+5. Create the Space, then **Settings → Connected GitHub repo** → `Manish1671/SkillLens` (or paste the Dockerfile from this repo’s root).
+6. **Settings → Variables and secrets** (mark these as secrets):
+   - `APP_ENV` = `production`
+   - `DATABASE_URL` = the Neon string
+   - `JWT_SECRET_KEY` = any 32+ character random string
+   - `SKILLENS_DEMO_PASSWORD` = `demo12345` (or whatever you want to type on your CV)
+   - `PORT` = `7860`
+7. Wait for the build (first run can take 5–10 minutes).
+
+CV URL: `https://huggingface.co/spaces/<your-hf-username>/skilllens`  
+(or the direct Space app URL Hugging Face shows)
+
 Login: `demo@skilllens.local` / your `SKILLENS_DEMO_PASSWORD`.
 
-The API container migrates, seeds the catalog, and rebuilds the demo learner on each start.
+The container migrates, seeds the catalog, and rebuilds the demo learner on each start.
 
 ### Production Docker (any VPS)
 
