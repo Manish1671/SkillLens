@@ -120,3 +120,6 @@ def test_normalize_database_url_accepts_hosted_postgres() -> None:
     assert normalize_database_url("postgresql://u:p@h/db") == "postgresql+psycopg://u:p@h/db"
     already = "postgresql+psycopg://u:p@h/db"
     assert normalize_database_url(already) == already
+    neon = normalize_database_url("postgresql://u:p@ep-x.neon.tech/db")
+    assert neon.startswith("postgresql+psycopg://")
+    assert "sslmode=require" in neon

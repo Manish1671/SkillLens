@@ -5,12 +5,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 def normalize_database_url(url: str) -> str:
     """Accept Render/Railway postgres URLs and SQLAlchemy's psycopg driver form."""
     if url.startswith("postgresql+psycopg://"):
-        return url
-    if url.startswith("postgres://"):
-        url = "postgresql://" + url[len("postgres://") :]
-    if url.startswith("postgresql://"):
-        url = "postgresql+psycopg://" + url[len("postgresql://") :]
-    return url
+        normalized = url
+    elif url.startswith("postgres://"):
+        normalized = "postgresql+psycopg://" + url[len("postgres://") :]
+    elif url.startswith("postgresql://"):
+        normalized = "postgresql+psycopg://" + url[len("postgresql://") :]
+    else:
+        normalized = url
+    hosted = "neon.tech" in normalized or "render.com" in normalized
+    if hosted and "sslmode=" not in normalized:
+        join = "&" if "?" in normalized else "?"
+        normalized = f"{normalized}{join}sslmode=require"
+    return normalized
 
 
 class Settings(BaseSettings):
