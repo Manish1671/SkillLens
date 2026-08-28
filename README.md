@@ -191,35 +191,9 @@ Open [http://localhost:3000](http://localhost:3000). Next.js rewrites `/api/*` t
 
 ## Deploy (CV / live demo)
 
-Railway’s free plan is already used on this account. Use **Neon (free Postgres) + Hugging Face Spaces (free website)**. One Docker image runs both the UI and the API.
+One Render web service. No Blueprint. No Hugging Face. Database is Neon (Render no longer has free Postgres).
 
-### 1. Free database (Neon)
-
-1. Open [https://console.neon.tech](https://console.neon.tech) and sign in with GitHub.
-2. Create a project (default settings are fine).
-3. Copy the **connection string** (`postgresql://...`). You will paste it as `DATABASE_URL`.
-
-### 2. Free website (Hugging Face)
-
-1. Open [https://huggingface.co/new-space](https://huggingface.co/new-space)
-2. Space name: `skilllens`
-3. **SDK:** Docker
-4. **Hardware:** CPU basic (free)
-5. Create the Space, then **Settings → Connected GitHub repo** → `Manish1671/SkillLens` (or paste the Dockerfile from this repo’s root).
-6. **Settings → Variables and secrets** (mark these as secrets):
-   - `APP_ENV` = `production`
-   - `DATABASE_URL` = the Neon string
-   - `JWT_SECRET_KEY` = any 32+ character random string
-   - `SKILLENS_DEMO_PASSWORD` = `demo12345` (or whatever you want to type on your CV)
-   - `PORT` = `7860`
-7. Wait for the build (first run can take 5–10 minutes).
-
-CV URL: `https://huggingface.co/spaces/<your-hf-username>/skilllens`  
-(or the direct Space app URL Hugging Face shows)
-
-Login: `demo@skilllens.local` / your `SKILLENS_DEMO_PASSWORD`.
-
-The container migrates, seeds the catalog, and rebuilds the demo learner on each start.
+Login after deploy: `demo@skilllens.local` / `demo12345`
 
 ### Production Docker (any VPS)
 
