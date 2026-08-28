@@ -1,12 +1,12 @@
 databases:
-  - name: skilllens-db
+  - name: skilllens-manish1671-db
     plan: free
     databaseName: skilllens
     user: skilllens
 
 services:
   - type: web
-    name: skilllens-api
+    name: skilllens-manish1671-api
     runtime: docker
     plan: free
     dockerfilePath: ./backend/Dockerfile
@@ -17,7 +17,7 @@ services:
         value: production
       - key: DATABASE_URL
         fromDatabase:
-          name: skilllens-db
+          name: skilllens-manish1671-db
           property: connectionString
       - key: JWT_SECRET_KEY
         generateValue: true
@@ -27,7 +27,7 @@ services:
         value: INFO
 
   - type: web
-    name: skilllens-web
+    name: skilllens-manish1671-web
     runtime: docker
     plan: free
     dockerfilePath: ./frontend/Dockerfile
@@ -35,6 +35,6 @@ services:
     healthCheckPath: /
     envVars:
       - key: API_URL
-        value: http://skilllens-api:10000
+        value: http://skilllens-manish1671-api:10000
       - key: HOSTNAME
         value: 0.0.0.0

@@ -213,8 +213,8 @@ Put HTTPS in front of port 3000 (Caddy, nginx, Cloudflare Tunnel, or a PaaS). Pr
 
 1. Push this repo to GitHub.
 2. In Render: **New → Blueprint**, select the repo (`render.yaml`).
-3. Set `SKILLENS_DEMO_PASSWORD` on `skilllens-api`.
-4. Use the **skilllens-web** URL on your CV (not the API URL).
+3. Set `SKILLENS_DEMO_PASSWORD` on `skilllens-manish1671-api`.
+4. Use the **skilllens-manish1671-web** URL on your CV (not the API URL).
 
 The API container migrates, seeds the catalog, and rebuilds the demo learner on each start.
 
