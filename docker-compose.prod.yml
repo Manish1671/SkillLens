@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-skilllens}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-skilllens}
+      POSTGRES_DB: ${POSTGRES_DB:-skilllens}
+    volumes:
+      - skilllens_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-skilllens} -d ${POSTGRES_DB:-skilllens}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      PORT: "8000"
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-skilllens}:${POSTGRES_PASSWORD:-skilllens}@postgres:5432/${POSTGRES_DB:-skilllens}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
+      SKILLENS_DEMO_PASSWORD: ${SKILLENS_DEMO_PASSWORD:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        API_URL: http://backend:8000
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      - backend
+
+volumes:
+  skilllens_pg_data:
