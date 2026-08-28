@@ -191,7 +191,39 @@ Open [http://localhost:3000](http://localhost:3000). Next.js rewrites `/api/*` t
 
 ## Deploy (CV / live demo)
 
+Use **Railway**, not Render. Railway gives you unique URLs, so you will not hit “name already in use”.
+
 The browser talks only to the frontend origin. `/api/*` is proxied to FastAPI so login cookies stay first-party.
+
+### Railway (use this)
+
+1. Cancel any in-progress Render Blueprint. You can delete the old Render SkillLens services later.
+2. Open [https://railway.app](https://railway.app) and log in with **GitHub**.
+3. **New Project** → **Empty project**.
+4. In that project click **Create** → **Database** → **PostgreSQL**. Wait until it is running.
+5. **Create** → **GitHub Repo** → **Manish1671/SkillLens**.
+   - Settings → **Root Directory**: `backend`
+   - Settings → rename the service to `backend`
+   - Variables (exactly these, plus the Postgres link):
+     - `APP_ENV` = `production`
+     - `PORT` = `8000`
+     - `JWT_SECRET_KEY` = any 32+ character random string
+     - `SKILLENS_DEMO_PASSWORD` = the demo login password (for example `demo12345`)
+     - `DATABASE_URL` = click **Add variable** → **Add a reference** → Postgres `DATABASE_URL`
+   - Settings → **Networking**: you can leave this **private** (no public URL).
+6. **Create** → **GitHub Repo** → **Manish1671/SkillLens** again.
+   - Settings → **Root Directory**: `frontend`
+   - Settings → rename the service to `web`
+   - Variables:
+     - `API_URL` = `http://backend.railway.internal:8000`
+     - `HOSTNAME` = `0.0.0.0`
+   - Settings → **Networking** → **Generate domain** (this is the CV URL).
+7. Redeploy **web** once after `API_URL` is set, so Next.js builds with the backend address.
+
+CV link = the **web** service domain (`*.up.railway.app`).  
+Login: `demo@skilllens.local` / your `SKILLENS_DEMO_PASSWORD`.
+
+The API container migrates, seeds the catalog, and rebuilds the demo learner on each start.
 
 ### Production Docker (any VPS)
 
@@ -208,15 +240,6 @@ Site: [http://localhost:3000](http://localhost:3000)
 Demo login: `demo@skilllens.local` / `$env:SKILLENS_DEMO_PASSWORD`
 
 Put HTTPS in front of port 3000 (Caddy, nginx, Cloudflare Tunnel, or a PaaS). Production cookies are `Secure` and will not work on plain HTTP.
-
-### Render
-
-1. Push this repo to GitHub.
-2. In Render: **New → Blueprint**, select the repo (`render.yaml`).
-3. Set `SKILLENS_DEMO_PASSWORD` on `skilllens-manish1671-api`.
-4. Use the **skilllens-manish1671-web** URL on your CV (not the API URL).
-
-The API container migrates, seeds the catalog, and rebuilds the demo learner on each start.
 
 ## Demo account
 
