@@ -17,17 +17,22 @@ fi
 cd /app/backend
 echo "Running migrations"
 python -m alembic upgrade head
-echo "Seeding catalog"
-python -m app.seed
-if [ -n "${SKILLENS_DEMO_PASSWORD:-}" ]; then
-  echo "Seeding demo account"
-  python -m app.seed.demo
-else
-  echo "SKILLENS_DEMO_PASSWORD not set; skipping demo user"
-fi
+echo "Bootstrapping data (skips catalog/demo if already present)"
+python -m app.seed.bootstrap
 
 echo "Starting API on 127.0.0.1:8000"
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 &
+
+echo "Waiting for API health"
+i=0
+until curl -sf http://127.0.0.1:8000/api/health >/dev/null; do
+  i=$((i + 1))
+  if [ "$i" -ge 30 ]; then
+    echo "FATAL: API did not become healthy"
+    exit 1
+  fi
+  sleep 1
+done
 
 if [ -f /app/web/server.js ]; then
   cd /app/web

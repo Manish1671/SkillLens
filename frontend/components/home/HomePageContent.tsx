@@ -11,7 +11,9 @@ export function HomePageContent() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
-    getCurrentUser().then((result) => setLoggedIn(Boolean(result.data)));
+    getCurrentUser()
+      .then((result) => setLoggedIn(Boolean(result.data)))
+      .catch(() => setLoggedIn(false));
   }, []);
 
   if (loggedIn === null) {

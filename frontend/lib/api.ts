@@ -47,19 +47,45 @@ export async function loginUser(input: {
   return { data: await parseJson<PublicUser>(response), status: response.status };
 }
 
+async function parseJsonOrNull<T>(response: Response): Promise<T | null> {
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 export async function getCurrentUser(): Promise<{
   data?: PublicUser;
   error?: ApiErrorBody;
   status: number;
 }> {
-  const response = await fetch("/api/auth/me", {
-    method: "GET",
-    credentials: "include",
-  });
-  if (!response.ok) {
-    return { error: await parseJson<ApiErrorBody>(response), status: response.status };
+  try {
+    const response = await fetch("/api/auth/me", {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!response.ok) {
+      const error = await parseJsonOrNull<ApiErrorBody>(response);
+      return {
+        error: error ?? { detail: "Not signed in", code: "unauthorized" },
+        status: response.status,
+      };
+    }
+    const data = await parseJsonOrNull<PublicUser>(response);
+    if (!data) {
+      return {
+        error: { detail: "Session could not be loaded", code: "invalid_response" },
+        status: 502,
+      };
+    }
+    return { data, status: response.status };
+  } catch {
+    return {
+      error: { detail: "Session could not be loaded", code: "network_error" },
+      status: 0,
+    };
   }
-  return { data: await parseJson<PublicUser>(response), status: response.status };
 }
 
 export async function logoutUser(): Promise<{ status: number }> {

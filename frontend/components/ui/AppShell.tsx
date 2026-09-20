@@ -41,17 +41,22 @@ export function AppShell({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    getCurrentUser().then(async (result) => {
-      const nextUser = result.data ?? null;
-      setUser(nextUser);
-      if (!nextUser) {
+    getCurrentUser()
+      .then(async (result) => {
+        const nextUser = result.data ?? null;
+        setUser(nextUser);
+        if (!nextUser) {
+          setTargetName(null);
+          return;
+        }
+        if (typeof getMyTarget !== "function") return;
+        const target = await getMyTarget();
+        setTargetName(target.data?.profile?.name ?? null);
+      })
+      .catch(() => {
+        setUser(null);
         setTargetName(null);
-        return;
-      }
-      if (typeof getMyTarget !== "function") return;
-      const target = await getMyTarget();
-      setTargetName(target.data?.profile?.name ?? null);
-    });
+      });
   }, []);
 
   async function handleLogout() {

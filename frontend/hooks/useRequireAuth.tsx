@@ -17,15 +17,20 @@ export function useRequireAuth(nextPath: string): {
 
   useEffect(() => {
     let cancelled = false;
-    getCurrentUser().then((result) => {
-      if (cancelled) return;
-      if (!result.data) {
+    getCurrentUser()
+      .then((result) => {
+        if (cancelled) return;
+        if (!result.data) {
+          router.replace(loginHref(nextPath));
+          return;
+        }
+        setUser(result.data);
+        setReady(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
         router.replace(loginHref(nextPath));
-        return;
-      }
-      setUser(result.data);
-      setReady(true);
-    });
+      });
     return () => {
       cancelled = true;
     };

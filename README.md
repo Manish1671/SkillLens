@@ -263,7 +263,8 @@ Re-running the command wipes that user's attempts, evidence, mastery, snapshots,
 # Migrate
 cd backend && python -m alembic upgrade head
 
-# Seed (development/demo only — not on every deploy)
+# Seed catalog (local). Production Docker uses `python -m app.seed.bootstrap`
+# so Render cold starts do not wipe the catalog or replay the demo learner.
 python -m app.seed
 
 # Backend

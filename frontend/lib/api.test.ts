@@ -71,4 +71,27 @@ describe("auth api client", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("does not hang when /api/auth/me returns HTML or the network fails", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValueOnce(new Error("Failed to fetch")));
+    const network = await getCurrentUser();
+    expect(network.status).toBe(0);
+    expect(network.error?.code).toBe("network_error");
+    vi.unstubAllGlobals();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValueOnce({
+        ok: false,
+        status: 502,
+        json: async () => {
+          throw new Error("not json");
+        },
+      }),
+    );
+    const html = await getCurrentUser();
+    expect(html.status).toBe(502);
+    expect(html.data).toBeUndefined();
+    vi.unstubAllGlobals();
+  });
 });
